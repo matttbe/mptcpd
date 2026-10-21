@@ -253,8 +253,9 @@ static int unit_update(int argc, char *argv[], int enable)
 	if (system("systemctl daemon-reload") != 0)
 		error(1, errno, "can't reload unit, manual 'systemctl daemon-reload' is required");
 
-	printf("mptcp successfully %s on unit %s\n",
-	       enable ? "enabled" : "disabled", conf_path);
+	printf("mptcp successfully %s on unit %s by %s %s\n",
+	       enable ? "enabled" : "disabled", name,
+	       enable ? "adding" : "removing", conf_path);
 	free(unit);
 	return 0;
 }
