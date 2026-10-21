@@ -32,6 +32,7 @@
 #endif
 
 #define SYSTEMD_ENV_VAR		"Environment="
+#define SYSTEMD_OVERRIDE_DIR	"/etc/systemd/system"
 #define SYSTEMD_OVERRIDE_FILE	"mptcpize.conf"
 #define SYSTEMD_UNIT_VAR	"FragmentPath="
 #define SYSTEMD_SERVICE_TAG	"[Service]"
@@ -208,7 +209,7 @@ static char *locate_unit(const char *name)
 static int unit_update(int argc, char *argv[], int enable)
 {
 	char dir_path[PATH_MAX], conf_path[PATH_MAX];
-	char *unit;
+	char *unit, *name;
 	FILE *conf;
 
 	if (argc < 1) {
@@ -220,7 +221,10 @@ static int unit_update(int argc, char *argv[], int enable)
 	unit = locate_unit(argv[0]);
 
 	/* systemd drop-in: <unit>.d/mptcpize.conf */
-	if (snprintf(dir_path, sizeof(dir_path), "%s.d", unit) >= (int)sizeof(dir_path) ||
+	name = strrchr(unit, '/');
+	name = name ? name + 1 : unit;
+	if (snprintf(dir_path, sizeof(dir_path), SYSTEMD_OVERRIDE_DIR "/%s.d",
+		     name) >= (int)sizeof(dir_path) ||
 	    snprintf(conf_path, sizeof(conf_path), "%s/" SYSTEMD_OVERRIDE_FILE,
 		     dir_path) >= (int)sizeof(conf_path))
 		error(1, 0, "path too long for unit %s", unit);
